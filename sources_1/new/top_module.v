@@ -38,7 +38,7 @@ module top_module(
     output lighting_func,
     output [7:0] seg_en,
     output [7:0] seg_out1
-    //output [7:0] seg_out2,
+    output [7:0] seg_out2,
     );
     wire clk_100Hz, clk_500Hz;
     wire [2:0] state;
@@ -51,6 +51,7 @@ module top_module(
     wire [5:0] working_hour;
     wire [5:0] working_min;
     wire [5:0] working_sec;
+    wire clean_warning;
     wire [63:0] time_count_down_in_seconds;
     wire [5:0] count_down_sec;
     wire [5:0] count_down_min;
@@ -165,5 +166,25 @@ module top_module(
         .seg_en(seg_en[7:4]),
         .seg_out(seg_out1)
         );
+    clean_reminder clean_reminder_inst (
+        .clk(clk_100Hz),
+        .is_standby(is_standby),
+        .rst_n(rst_n),
+        // need to be set
+        .hour_threshold(6'd0), 
+        .min_threshold(6'd0),
+        .sec_threshold(6'd0),
+        .working_hour(working_hour),
+        .working_min(working_min),
+        .working_sec(working_sec),
+        .warning(clean_warning)
+    );
     
+    clean_reminder_display clean_reminder_display_inst (
+        .clk_500Hz(clk_500Hz),
+        .rst_n(rst_n),
+        .warning(clean_warning),
+        .seg_en(seg_en[3:0]),
+        .seg_out(seg_out2)
+    );
 endmodule
